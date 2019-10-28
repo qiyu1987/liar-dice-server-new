@@ -1,29 +1,27 @@
-const { Router } = require("express");
-const { toJWT, toData } = require("./jwt");
-const bcrypt = require("bcrypt");
-const User = require("../user/model");
+const { Router } = require('express');
+const { toJWT, toData } = require('./jwt');
+const bcrypt = require('bcrypt');
+const User = require('../user/model');
 
 const router = new Router();
 
 // define endpoints here
-router.post("/login", (req, res) => {
-  if (!req.body.name || !req.body.password) {
-    return res
-      .status(400)
-      .send({ message: "Please give me some credentials" });
+router.post('/login', (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).send({ message: 'Please give me some credentials' });
   }
 
-  // Query to find a user by name (unique, right ;) )
+  // Query to find a user by email (unique, right ;) )
   User.findOne({
     where: {
-      name: req.body.name
+      email: req.body.email
     }
   })
     .then(user => {
       // we can get null, it was not found
       if (!user) {
         res.status(400).send({
-          message: "User with that name does not exist, Please signup first."
+          message: 'User with that email does not exist, Please signup first.'
         });
       }
 
@@ -35,14 +33,14 @@ router.post("/login", (req, res) => {
         });
       } else {
         res.status(400).send({
-          message: "Name or password incorrect, sorry"
+          message: 'Name or password incorrect, sorry'
         });
       }
     })
     .catch(err => {
       console.error(err);
       res.status(500).send({
-        message: "Something went wrong"
+        message: 'Something went wrong'
       });
     });
 });
