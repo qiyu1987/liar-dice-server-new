@@ -8,7 +8,8 @@ const Table = db.define('table', {
         unique: true
     },
     status:{
-        type: Sequelize.ENUM('empty','waiting','playing','done')
+        type: Sequelize.ENUM('empty','waiting','playing','done'),
+        defaultValue: 'empty'
     },
 }
 )
