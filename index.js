@@ -9,9 +9,14 @@ const corsMiddleWare = cors();
 
 const db = require('./db')
 const User = require('./user/model')
+const Table = require('./table/model')
 const signupRouter = require('./user/router')
+const loginRouter = require('./auth/router')
+const lobbyRouter = require('./table/router')
 app
     .use(corsMiddleWare)
     .use(bodyParserMiddleWare)
     .use(signupRouter)
+    .use(loginRouter)
+    .use(lobbyRouter)
     .listen(port, ()=> console.log('Server runing on port: ', port))
