@@ -9,6 +9,7 @@ const corsMiddleWare = cors();
 
 const db = require('./db')
 const User = require('./user/model')
+const Table = require('./table/model')
 const signupRouter = require('./user/router')
 const loginRouter = require('./auth/router')
 app
