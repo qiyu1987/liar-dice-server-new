@@ -33,7 +33,7 @@ router.post('/login', (req, res) => {
         });
       } else {
         res.status(400).send({
-          message: 'Name or password incorrect, sorry'
+          message: 'Email or password incorrect, sorry'
         });
       }
     })
