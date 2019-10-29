@@ -10,9 +10,17 @@ const Table = db.define('table', {
   status: {
     type: Sequelize.ENUM('empty', 'waiting', 'playing', 'done'),
     defaultValue: 'empty'
-  }
+  },
+  bidNumber: {
+      type: Sequelize.INTEGER
+    },
+  bidDiceType: {
+      type: Sequelize.ENUM('1','2','3','4','5','6')
+    }
 });
-Table.belongsTo(User, { as: 'Player1', constraints: false });
-Table.belongsTo(User, { as: 'Player2', constraints: false });
-Table.belongsTo(User, { as: 'Winner', constraints: false });
+
+Table.belongsTo(User, { as: 'turn', constraints: false });
+Table.belongsTo(User, { as: 'player1', constraints: false });
+Table.belongsTo(User, { as: 'player2', constraints: false });
+Table.belongsTo(User, { as: 'winner', constraints: false });
 module.exports = Table;
