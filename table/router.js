@@ -66,6 +66,45 @@ router.put('/table/:id/join', authMiddleware,
         .catch(next);
     }
 )
-// start a game
+// start a game --> req.body = {diceRoll1:'12345',diceRoll2:'54321'}
+router.put('/table/:id/start', (req, res, next) => {
+    console.log(`got a request to start the game on table ${req.params.id}`)
+    Table.findByPk(req.params.id)
+        .then(table => {
+            if (table) {
+                const {player1Id} = table
+                table.update({...req.body, turnId: player1Id}).then(table => res.json(table))
+            } else {
+                res.status(404).end()
+            }
+        })
+        .catch(next)
+})
+// place a bid --> req.body = {bidNumber:1,bidDiceType:'3'}
+router.put('/table/:id/bid', (req, res, next) => {
+    console.log(`a bid is placed on table ${req.params.id}`)
+    Table.findByPk(req.params.id)
+        .then(table => {
+            if (table){
+                const {turnId, player1Id, player2Id} = table
+                const newTurnId = turnId === player1Id ? player2Id : player1Id
+                table.update({...req.body, turnId: newTurnId}).then(table => res.json(table))
+            } else {
+                res.status(404).end()
+            }
+        })
+        .catch(next)
+})
+// challenge
+router.put('table/:id/challenge', (req, res, next) => {
+    Table.findByPk(req.params.id)
+        .then(table => {
+            if (table) {
+                table.update({status:'done', })
+            } else {
+                res.status(404).end()
+            }
+        })
+})
 module.exports = router
 
