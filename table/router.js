@@ -67,5 +67,16 @@ router.put('/table/:id/join', authMiddleware,
     }
 )
 // start a game
+router.put('/table/:id/start', (req, res, next) => {
+    console.log('got a request to start the game')
+    Table.findByPk(req.params.id)
+        .then(table => {
+            if (table) {
+                table.update(req.body).then(table => res.json(table))
+            } else {
+                res.status(404).end()
+            }
+        })
+})
 module.exports = router
 

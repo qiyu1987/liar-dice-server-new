@@ -21,5 +21,4 @@ router.post('/signup', (req, res, next) => {
     })
     .catch(next);
 });
-
 module.exports = router;
