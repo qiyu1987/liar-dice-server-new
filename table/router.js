@@ -3,6 +3,7 @@ const router = new Router()
 const Table = require('./model')
 const authMiddleware = require('../auth/middleware')
 const { toData } = require("../auth/jwt");
+// get all tables as a list
 router.get('/lobby', 
     (req, res, next) => {
         Table.findAll()
@@ -12,6 +13,7 @@ router.get('/lobby',
             .catch(next)
     }
 )
+// get one table
 router.get('/table/:id',
     (req, res, next) => {
         Table.findByPk(req.params.id)
@@ -21,6 +23,7 @@ router.get('/table/:id',
         .catch(next);
     }
 )
+//create a table
 router.post('/lobby', authMiddleware,
     (req, res, next) => {
         console.log('request post /lobby')
@@ -30,9 +33,10 @@ router.post('/lobby', authMiddleware,
             .catch(next)
     }
 )
-router.put('/table/:id', authMiddleware, 
+// join a table
+router.put('/table/:id/join', authMiddleware, 
     (req, res, next) => {
-        console.log(`get a request on put /table/${req.params.id}`)
+        console.log(`get a request on put /table/${req.params.id}/join`)
         const auth =
         req.headers.authorization && req.headers.authorization.split(" ");
         const data = toData(auth[1])
@@ -42,12 +46,12 @@ router.put('/table/:id', authMiddleware,
           if (table) {
             switch (table.status) {
                 case 'empty':
-                    table.update({ status:'waiting', Player1Id:data.userId })
+                    table.update({ status:'waiting', player1Id:data.userId })
                     .then(res.send(table))
                 case 'waiting':
-                    if (table.Player1Id!==data.userId)
+                    if (table.player1Id!==data.userId)
                     {
-                        table.update({ status:'playing', Player2Id:data.userId })
+                        table.update({ status:'playing', player2Id:data.userId })
                         .then(res.send(table))
                     } else {
                         res.send('You already joined the table')
@@ -62,5 +66,6 @@ router.put('/table/:id', authMiddleware,
         .catch(next);
     }
 )
+// start a game
 module.exports = router
 
