@@ -95,12 +95,16 @@ router.put('/table/:id/bid', async (req, res) => {
         res.status(404).end()
     }
 })
-// challenge
-router.put('table/:id/challenge', (req, res, next) => {
+// challenge --> req.body = {winnerId: 1}
+router.put('/table/:id/challenge', (req, res, next) => {
+    console.log('got a put request on challenge')
     Table.findByPk(req.params.id, {include: [{all:true}]})
         .then(table => {
             if (table) {
-                table.update({status:'done', })
+                table.update({status:'done', ...req.body})
+                const data = JSON.stringify(table)
+                stream.send(data)
+                res.send(data)
             } else {
                 res.status(404).end()
             }
