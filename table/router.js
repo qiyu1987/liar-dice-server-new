@@ -42,7 +42,7 @@ router.put('/table/:id/join', authMiddleware,
         req.headers.authorization && req.headers.authorization.split(" ");
         const data = toData(auth[1])
         console.log('what is the data out of token',data)
-        Table.findByPk(req.params.id)
+        Table.findByPk(req.params.id, {include: [{all:true}]})
         .then(table => {
           if (table) {
             switch (table.status) {
@@ -69,7 +69,7 @@ router.put('/table/:id/join', authMiddleware,
 )
 // start a game --> req.body = {diceRoll1:'12345',diceRoll2:'54321'}
 router.put('/table/:id/start', async (req, res) => {
-    const table = await Table.findByPk(req.params.id)
+    const table = await Table.findByPk(req.params.id, {include: [{all:true}]})
     if (table) {
         const {player1Id} = table
         table.update({...req.body, turnId: player1Id})
@@ -83,7 +83,7 @@ router.put('/table/:id/start', async (req, res) => {
 // place a bid --> req.body = {bidNumber:1,bidDiceType:'3'}
 router.put('/table/:id/bid', async (req, res) => {
     console.log(`a bid is placed on table ${req.params.id}`)
-    const table = await Table.findByPk(req.params.id)
+    const table = await Table.findByPk(req.params.id,{include:[{all:true}]})
     if (table){
         const {turnId, player1Id, player2Id} = table
         const newTurnId = turnId === player1Id ? player2Id : player1Id
@@ -97,7 +97,7 @@ router.put('/table/:id/bid', async (req, res) => {
 })
 // challenge
 router.put('table/:id/challenge', (req, res, next) => {
-    Table.findByPk(req.params.id)
+    Table.findByPk(req.params.id, {include: [{all:true}]})
         .then(table => {
             if (table) {
                 table.update({status:'done', })
