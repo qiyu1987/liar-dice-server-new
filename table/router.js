@@ -36,35 +36,39 @@ router.post('/lobby',
 )
 // join a table
 router.put('/table/:id/join', authMiddleware, 
-    (req, res, next) => {
+    async (req, res, next) => {
         console.log(`get a request on put /table/${req.params.id}/join`)
         const auth =
         req.headers.authorization && req.headers.authorization.split(" ");
-        const data = toData(auth[1])
-        console.log('what is the data out of token',data)
-        Table.findByPk(req.params.id, {include: [{all:true}]})
-        .then(table => {
-          if (table) {
+        const user = toData(auth[1])
+        console.log('what is the user out of token',user)
+        const table = await Table.findByPk(req.params.id, {include: [{all:true}]})
+        
+        if (table) {
             switch (table.status) {
                 case 'empty':
-                    table.update({ status:'waiting', player1Id:data.userId })
-                    .then(res.send(table))
+                    table.update({ status:'waiting', player1Id:user.userId })
+                    const tableData = JSON.stringify(table)
+                    stream.send(tableData)
+                    res.send(tableData)
                 case 'waiting':
-                    if (table.player1Id!==data.userId)
+                    if (table.player1Id!==user.userId)
                     {
-                        table.update({ status:'playing', player2Id:data.userId })
-                        .then(res.send(table))
+                        table.update({ status:'playing', player2Id:user.userId })
+                        const tableData = JSON.stringify(table)
+                        stream.send(tableData)
+                        res.send(tableData)
                     } else {
                         res.send('You already joined the table')
                     }
                 default:
                     res.send('Table not available')
             }
-          } else {
-            res.status(404).end();
-          }
-        })
-        .catch(next);
+        } else {
+        res.status(404).end();
+        }
+        
+        
     }
 )
 // start a game --> req.body = {diceRoll1:'12345',diceRoll2:'54321'}
