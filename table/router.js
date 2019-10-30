@@ -1,5 +1,7 @@
 const { Router } = require('express')
+const Sse = require('json-sse')
 const router = new Router()
+const stream = new Sse()
 const Table = require('./model')
 const authMiddleware = require('../auth/middleware')
 const { toData } = require("../auth/jwt");
@@ -15,16 +17,15 @@ router.get('/lobby',
 )
 // get one table
 router.get('/table/:id',
-    (req, res, next) => {
-        Table.findByPk(req.params.id)
-        .then(table => {
-          res.send(table);
-        })
-        .catch(next);
+    async (req, res) => {
+        const table = await Table.findByPk(req.params.id, { include: [{all:true}] })
+        const data = JSON.stringify(table)
+        stream.updateInit(data)
+        stream.init(req, res)
     }
 )
 //create a table
-router.post('/lobby', authMiddleware,
+router.post('/lobby', 
     (req, res, next) => {
         console.log('request post /lobby')
         console.log(req.body)
@@ -67,33 +68,32 @@ router.put('/table/:id/join', authMiddleware,
     }
 )
 // start a game --> req.body = {diceRoll1:'12345',diceRoll2:'54321'}
-router.put('/table/:id/start', (req, res, next) => {
-    console.log(`got a request to start the game on table ${req.params.id}`)
-    Table.findByPk(req.params.id)
-        .then(table => {
-            if (table) {
-                const {player1Id} = table
-                table.update({...req.body, turnId: player1Id}).then(table => res.json(table))
-            } else {
-                res.status(404).end()
-            }
-        })
-        .catch(next)
+router.put('/table/:id/start', async (req, res) => {
+    const table = await Table.findByPk(req.params.id)
+    if (table) {
+        const {player1Id} = table
+        table.update({...req.body, turnId: player1Id})
+        const data = JSON.stringify(table)
+        stream.send(data)
+        res.send(data)
+    } else {
+        res.status(404).end()
+    }
 })
 // place a bid --> req.body = {bidNumber:1,bidDiceType:'3'}
-router.put('/table/:id/bid', (req, res, next) => {
+router.put('/table/:id/bid', async (req, res) => {
     console.log(`a bid is placed on table ${req.params.id}`)
-    Table.findByPk(req.params.id)
-        .then(table => {
-            if (table){
-                const {turnId, player1Id, player2Id} = table
-                const newTurnId = turnId === player1Id ? player2Id : player1Id
-                table.update({...req.body, turnId: newTurnId}).then(table => res.json(table))
-            } else {
-                res.status(404).end()
-            }
-        })
-        .catch(next)
+    const table = await Table.findByPk(req.params.id)
+    if (table){
+        const {turnId, player1Id, player2Id} = table
+        const newTurnId = turnId === player1Id ? player2Id : player1Id
+        table.update({...req.body, turnId: newTurnId})
+        const data = JSON.stringify(table)
+        stream.send(data)
+        res.send(data)
+    } else {
+        res.status(404).end()
+    }
 })
 // challenge
 router.put('table/:id/challenge', (req, res, next) => {
