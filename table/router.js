@@ -76,7 +76,13 @@ router.put('/table/:id/start', async (req, res) => {
     const table = await Table.findByPk(req.params.id, {include: [{all:true}]})
     if (table) {
         const {player1Id} = table
-        table.update({...req.body, turnId: player1Id})
+        table.update({
+            ...req.body,
+            status:'playing', 
+            turnId: player1Id, 
+            bidNumber: null, 
+            bidDiceType: null, 
+            winnerId: null})
         const data = JSON.stringify(table)
         stream.send(data)
         res.send(data)
