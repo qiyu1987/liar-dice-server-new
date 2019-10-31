@@ -10,8 +10,5 @@ const User = db.define('user', {
     type: Sequelize.STRING,
     allowNull: false
   },
-  diceRoll: {
-    type: Sequelize.STRING,
-  }
 });
 module.exports = User;

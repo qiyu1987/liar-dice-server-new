@@ -14,6 +14,15 @@ const Gamelog = require('./gamelog/model')
 const signupRouter = require('./user/router');
 const loginRouter = require('./auth/router');
 const lobbyRouter = require('./table/router');
+db.sync()
+  .then(() => {
+    console.log('Database connected')
+    const tableNames = ["Egel", "Das", "Eagle", "Pinguin"];
+    const tables = tableNames.map(tableName => Table.create({ name: tableName }));
+    return Promise.all(tables);
+  })
+
+  .catch(error => console.error);
 app
   .use(corsMiddleWare)
   .use(bodyParserMiddleWare)
