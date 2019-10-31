@@ -14,7 +14,7 @@ const Gamelog = require('./gamelog/model')
 const signupRouter = require('./user/router');
 const loginRouter = require('./auth/router');
 const lobbyRouter = require('./table/router');
-db.sync({force:true})
+db.sync()
   .then(() => {
     console.log('Database connected')
     const tableNames = ["Egel", "Das", "Eagle", "Pinguin"];
